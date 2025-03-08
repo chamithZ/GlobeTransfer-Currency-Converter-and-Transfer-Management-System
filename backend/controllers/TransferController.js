@@ -1,5 +1,5 @@
 const Transfer = require("../models/Transfer");
-const { getExchangeRate } = require("../services/exchangeRateService");
+const { getExchangeRate } = require("../Services/TransferService");
 
 // Convert Currency
 const convertCurrency = async (req, res) => {
