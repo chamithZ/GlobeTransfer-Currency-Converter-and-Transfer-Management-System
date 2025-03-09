@@ -5,13 +5,16 @@ const {
   getTransfers,
   deleteTransfer,
 } = require("../controllers/transferController");
+const authenticateUser = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Routes
+// Public Route - Anyone can convert
 router.get("/convert", convertCurrency);
-router.post("/save", saveTransfer);
-router.get("/", getTransfers);
-router.delete("/:id", deleteTransfer);
+
+// Protected Routes - Require login
+router.post("/save", authenticateUser, saveTransfer);
+router.get("/", authenticateUser, getTransfers);
+router.delete("/:id", authenticateUser, deleteTransfer);
 
 module.exports = router;
