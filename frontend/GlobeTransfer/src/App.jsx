@@ -1,16 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { AuthProvider } from "./context/AuthContext";
+import GoogleLogin from "./components/GoogleLogin";
+import Home from "./pages/Home";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 function App() {
-  const [count, setCount] = useState(0)
+	const [user, setUser] = useState();
 
-  return (
-    <>
-    
-    </>
-  )
+	return (
+		<GoogleOAuthProvider clientId="1058675930465-p5qnh9ahp15mnaikqtiesqv9s77hkcdk.apps.googleusercontent.com">
+		<Provider store={store}>
+		  <BrowserRouter> 
+			<Routes>
+			  <Route path="/" element={<Home />} />
+			  <Route path="/login" element={<GoogleLogin />} />
+			</Routes>
+		  </BrowserRouter>
+		  </Provider>
+	  </GoogleOAuthProvider>
+	);
 }
 
-export default App
+export default App;
