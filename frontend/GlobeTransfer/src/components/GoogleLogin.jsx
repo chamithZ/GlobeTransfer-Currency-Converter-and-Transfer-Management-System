@@ -1,34 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import { useDispatch } from 'react-redux';  // Import useDispatch hook
-import { useNavigate } from 'react-router-dom';  // Import useNavigate hook for navigation
-import { setUser } from '../actions/authActions'; // Import the action for setting the user
-import { googleAuth } from '../services/api'; // Assuming googleAuth is a function to get the user data
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { setUser } from '../actions/authActions';
+import { googleAuth } from '../services/api';
+import Alert from '../components/Alert';
 
 const GoogleLogin = () => {
-  const dispatch = useDispatch();  // Initialize dispatch hook
-  const navigate = useNavigate();  // Initialize useNavigate hook
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [alert, setAlert] = useState({ message: "", type: "" });
+
+  useEffect(() => {
+    if (alert.message) {
+      const timer = setTimeout(() => {
+        setAlert({ message: "", type: "" });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
 
   const responseGoogle = async (authResult) => {
     try {
       if (authResult['code']) {
-        const result = await googleAuth(authResult.code);  // Call API to fetch user data using auth code
+        const result = await googleAuth(authResult.code);
         const user = result.data.data.user;
-        
-        // Dispatch the setUser action to store user in Redux state
-        dispatch(setUser(user));
 
-        // Save user data to localStorage to persist login state
+        dispatch(setUser(user));
         localStorage.setItem('user', JSON.stringify(user));
 
-        alert('Successfully logged in');
-        navigate('/');  // Redirect to home page after successful login
+        setAlert({ message: "Successfully logged in! Redirecting...", type: "success" });
+
+        setTimeout(() => navigate('/'), 1500);
       } else {
-        console.log(authResult);
         throw new Error(authResult);
       }
     } catch (e) {
       console.log(e);
+      setAlert({ message: "Login failed. Please try again.", type: "error" });
     }
   };
 
@@ -39,9 +48,21 @@ const GoogleLogin = () => {
   });
 
   return (
-    <button style={{ padding: '10px 20px' }} onClick={googleLogin}>
-      Sign in with Google
-    </button>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <Alert message={alert.message} type={alert.type} onClose={() => setAlert({ message: "", type: "" })} />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="text-3xl font-extrabold text-blue-600">🌍 Globe Transfer</h2>
+        <p className="mt-2 text-gray-600">Easily and securely sign in with your Google account</p>
+        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <button
+            onClick={googleLogin}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+          >
+            Sign in with Google
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

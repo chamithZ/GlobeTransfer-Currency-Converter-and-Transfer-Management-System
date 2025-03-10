@@ -7,6 +7,7 @@ export default function CurrencyConverter({ onTransfer }) {
   const [amount, setAmount] = useState("");
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleConvert = async () => {
     if (!amount) return;
@@ -28,14 +29,16 @@ export default function CurrencyConverter({ onTransfer }) {
       toCountry: toCurrency,
       amount,
       convertedAmount,
-      exchangeRate: (convertedAmount / amount).toFixed(2),  // Added exchangeRate calculation
+      exchangeRate: (convertedAmount / amount).toFixed(2),
     };
 
     try {
       const savedTransfer = await TransferService.saveTransfer(newTransfer, localStorage.getItem("token"));
-      onTransfer(savedTransfer); // Update UI with new transfer
+      onTransfer(savedTransfer);
       setAmount("");
       setConvertedAmount(null);
+      setSuccessMessage("Transfer successfully completed!");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Transfer failed:", error);
     }
@@ -44,6 +47,12 @@ export default function CurrencyConverter({ onTransfer }) {
   return (
     <div className="mb-6 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <h2 className="text-lg font-medium text-gray-800 mb-4">Currency Converter</h2>
+      
+      {successMessage && (
+        <div className="mb-4 p-3 bg-green-100 border border-green-200 text-green-700 rounded-md text-sm">
+          {successMessage}
+        </div>
+      )}
       
       <div className="flex items-center mb-6">
         <div className="flex-1 mr-2">
