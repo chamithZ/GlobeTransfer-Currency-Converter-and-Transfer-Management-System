@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { AuthProvider } from "./context/AuthContext";
 import GoogleLogin from "./components/GoogleLogin";
 import Home from "./pages/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";

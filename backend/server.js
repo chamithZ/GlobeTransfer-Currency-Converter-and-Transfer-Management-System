@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(compression());
 
 const corsOptions = {
-  origin: 'http://localhost:5173', 
+  origin: process.env.FRONTEND_URL, 
   methods: 'GET,POST,DELETE',
   allowedHeaders: 'Content-Type, Authorization',
   credentials: true, 
@@ -44,7 +44,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/v1/auth/', authRouter);
-app.use("/api/transfers", transferRoutes);
+app.use("/api/v1/transfers", transferRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`, 404));
