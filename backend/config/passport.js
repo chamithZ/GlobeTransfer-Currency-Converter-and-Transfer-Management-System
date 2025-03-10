@@ -1,46 +1,25 @@
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const User = require("../models/User");
+const { ExtractJwt, Strategy: JwtStrategy } = require("passport-jwt");
+const User = require("../models/User");  // Replace with your user model
+
+const opts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET, // Replace with your JWT secret
+};
 
 passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        let user = await User.findOne({ googleId: profile.id });
-
-        if (!user) {
-          user = new User({
-            googleId: profile.id,
-            name: profile.displayName,
-            email: profile.emails[0].value,
-            profilePic: profile.photos[0].value,
-          });
-          await user.save();
-        }
-        done(null, user);
-      } catch (error) {
-        done(error, null);
+  new JwtStrategy(opts, async (jwt_payload, done) => {
+    try {
+      const user = await User.findById(jwt_payload.id); // Find user based on payload
+      if (user) {
+        return done(null, user); // User found, return user
+      } else {
+        return done(null, false); // No user found, reject
       }
+    } catch (error) {
+      return done(error, false); // Handle any errors during user lookup
     }
-  )
+  })
 );
 
-// Serialize user to session
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-// Deserialize user from session
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-});
+module.exports = passport;
